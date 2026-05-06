@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<div id="plot" style="width:600px;height:300px;"></div>
+
+<script>
+let L = 50;
+let grid = [];
+let beta = 0.4; // inverse temperature
+let J = 1;
+
+let magnetization = [];
+let step = 0;
+
+let tempSlider;
+
+function setup() {
+  createCanvas(400, 400);
+
+  tempSlider = createSlider(0.1, 5, 2.5, 0.1);
+  tempSlider.position(0, height - 5);
+
+  initGrid();
+  initPlot();
+}
+
+function initGrid() {
+  for (let i = 0; i < L; i++) {
+    grid[i] = [];
+    for (let j = 0; j < L; j++) {
+      grid[i][j] = random() < 0.5 ? 1 : -1;
+    }
+  }
+}
+
+function draw() {
+  background(220);
+
+  let T = tempSlider.value();
+  beta = 1 / T;
+
+  // Monte Carlo sweep
+  for (let n = 0; n < L * L; n++) {
+    let i = floor(random(L));
+    let j = floor(random(L));
+
+    let s = grid[i][j];
+    let nb = neighbors(i, j);
+
+    let dE = 2 * J * s * nb;
+
+    if (dE < 0 || random() < exp(-beta * dE)) {
+      grid[i][j] *= -1;
+    }
+  }
+
+  drawGrid();
+
+  let M = computeMagnetization();
+  magnetization.push(M);
+  step++;
+
+  updatePlot();
+}
+
+function neighbors(i, j) {
+  return grid[(i+1)%L][j] +
+         grid[(i-1+L)%L][j] +
+         grid[i][(j+1)%L] +
+         grid[i][(j-1+L)%L];
+}
+
+function drawGrid() {
+  let w = width / L;
+
+  for (let i = 0; i < L; i++) {
+    for (let j = 0; j < L; j++) {
+      if (grid[i][j] === 1) fill(0);
+      else fill(255);
+      rect(i * w, j * w, w, w);
+    }
+  }
+}
+
+function computeMagnetization() {
+  let sum = 0;
+  for (let i = 0; i < L; i++) {
+    for (let j = 0; j < L; j++) {
+      sum += grid[i][j];
+    }
+  }
+  return sum / (L * L);
+}
+
+function initPlot() {
+  Plotly.newPlot('plot', [{
+    x: [],
+    y: [],
+    mode: 'lines',
+    name: 'Magnetization'
+  }], {
+    title: 'Magnetization vs Time',
+    xaxis: {title: 'Monte Carlo steps'},
+    yaxis: {title: 'M'}
+  });
+}
+
+function updatePlot() {
+  let xs = magnetization.map((_, i) => i);
+  let ys = magnetization;
+
+  Plotly.react('plot', [{
+    x: xs,
+    y: ys,
+    mode: 'lines'
+  }]);
+}
+</script>
+
+</body>
+</html>
