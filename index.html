@@ -1,126 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interactive Physics Demos</title>
+
 </head>
+<link rel="stylesheet" href="styles.css">
 <body>
 
-<div id="plot" style="width:600px;height:300px;"></div>
+<header>
+  <h1>Interactive Physics Demos</h1>
+  <p>Thermodynamics & Statistical Mechanics</p>
+</header>
 
-<script>
-let L = 50;
-let grid = [];
-let beta = 0.4; // inverse temperature
-let J = 1;
+<div class="container">
+  <div class="grid">
 
-let magnetization = [];
-let step = 0;
+    <!-- Ising Model -->
+<div class="card">
+  <h3>Ising Model</h3>
+  <p>Explore phase transitions, magnetization, and critical behavior.</p>
+  <a href="ising.html" target="_blank" rel="noopener noreferrer">Open Demo</a>
+</div>
+    <!-- Ideal Gas -->
+    <div class="card">
+      <h3>Ideal Gas Simulation</h3>
+      <p>Particles in a box with collisions and velocity distributions.</p>
+      <a href="gas.html">Open Demo</a>
+    </div>
 
-let tempSlider;
+    <!-- Diffusion -->
+    <div class="card">
+      <h3>Diffusion / Random Walk</h3>
+      <p>Observe entropy increase and spreading over time.</p>
+      <a href="diffusion.html">Open Demo</a>
+    </div>
 
-function setup() {
-  createCanvas(400, 400);
+    <!-- Projectile -->
+    <div class="card">
+      <h3>Projectile Motion</h3>
+      <p>Visualize trajectories and compare with analytical results.</p>
+      <a href="projectile.html">Open Demo</a>
+    </div>
 
-  tempSlider = createSlider(0.1, 5, 2.5, 0.1);
-  tempSlider.position(0, height - 5);
+  </div>
+</div>
 
-  initGrid();
-  initPlot();
-}
-
-function initGrid() {
-  for (let i = 0; i < L; i++) {
-    grid[i] = [];
-    for (let j = 0; j < L; j++) {
-      grid[i][j] = random() < 0.5 ? 1 : -1;
-    }
-  }
-}
-
-function draw() {
-  background(220);
-
-  let T = tempSlider.value();
-  beta = 1 / T;
-
-  // Monte Carlo sweep
-  for (let n = 0; n < L * L; n++) {
-    let i = floor(random(L));
-    let j = floor(random(L));
-
-    let s = grid[i][j];
-    let nb = neighbors(i, j);
-
-    let dE = 2 * J * s * nb;
-
-    if (dE < 0 || random() < exp(-beta * dE)) {
-      grid[i][j] *= -1;
-    }
-  }
-
-  drawGrid();
-
-  let M = computeMagnetization();
-  magnetization.push(M);
-  step++;
-
-  updatePlot();
-}
-
-function neighbors(i, j) {
-  return grid[(i+1)%L][j] +
-         grid[(i-1+L)%L][j] +
-         grid[i][(j+1)%L] +
-         grid[i][(j-1+L)%L];
-}
-
-function drawGrid() {
-  let w = width / L;
-
-  for (let i = 0; i < L; i++) {
-    for (let j = 0; j < L; j++) {
-      if (grid[i][j] === 1) fill(0);
-      else fill(255);
-      rect(i * w, j * w, w, w);
-    }
-  }
-}
-
-function computeMagnetization() {
-  let sum = 0;
-  for (let i = 0; i < L; i++) {
-    for (let j = 0; j < L; j++) {
-      sum += grid[i][j];
-    }
-  }
-  return sum / (L * L);
-}
-
-function initPlot() {
-  Plotly.newPlot('plot', [{
-    x: [],
-    y: [],
-    mode: 'lines',
-    name: 'Magnetization'
-  }], {
-    title: 'Magnetization vs Time',
-    xaxis: {title: 'Monte Carlo steps'},
-    yaxis: {title: 'M'}
-  });
-}
-
-function updatePlot() {
-  let xs = magnetization.map((_, i) => i);
-  let ys = magnetization;
-
-  Plotly.react('plot', [{
-    x: xs,
-    y: ys,
-    mode: 'lines'
-  }]);
-}
-</script>
+<footer>
+  <p>Built for interactive physics teaching</p>
+</footer>
 
 </body>
 </html>
