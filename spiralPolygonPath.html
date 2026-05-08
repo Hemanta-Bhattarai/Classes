@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+<style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;  /* horizontal center */
+      align-items: center;      /* vertical center */
+      height: 100vh;
+      background: #f5f5f5;
+    }
+  </style>
+
+</head>
+
+<body>
+
+
+
+<script>
+
+let length = 500;
+let height = length+100;
+let width = length+100;
+let speed = 1;
+let centroid_line_length = Math.sqrt(3)/2*length;
+let pos1, pos2, pos3;
+let path1 = [];
+let path2 = [];
+let path3 = [];
+
+function setup() {
+
+  let canvas = createCanvas(height,width);
+
+  pos1 = createVector(0,2/3*centroid_line_length);
+  pos2 = createVector(-length/2,-1/3*centroid_line_length);
+  pos3 = createVector(length/2,-1/3*centroid_line_length);
+
+
+// START button
+  let startBtn = createButton("Start");
+
+  startBtn.position(150,0);
+
+  startBtn.mousePressed(() => {
+    loop();
+  });
+
+  // PAUSE button
+  let pauseBtn = createButton("Pause");
+
+  pauseBtn.position(250,0);
+
+  pauseBtn.mousePressed(() => {
+    noLoop();
+  });
+
+  // END button
+  let endBtn = createButton("End");
+
+  endBtn.position(350, 00);
+
+  endBtn.mousePressed(() => {
+
+    noLoop();
+
+  });
+
+
+
+  // initially paused
+  noLoop();
+
+
+
+}
+
+function draw() {
+
+
+  background(255);
+  translate(width / 2, height / 2);
+  scale(1,-1);
+
+
+  // geometry
+  noFill();
+  strokeWeight(2);
+  stroke(0);
+  triangle(0,2/3*centroid_line_length,-length/2,-1/3*centroid_line_length,length/2,-1/3*centroid_line_length);
+  circle(0,2/3*centroid_line_length,10);
+  circle(-length/2,-1/3*centroid_line_length,10);
+  circle(length/2,-1/3*centroid_line_length,10);
+
+ // drawingContext.setLineDash([5, 5]);
+  //line(0,-length,0,length);
+  //line(-length,0,length,0);
+
+
+
+  drawingContext.setLineDash([]);
+
+  //fill(255,0,0);
+  //circle(pos1.x,pos1.y,10);
+  //fill(0,255,0);
+  //circle(pos2.x,pos2.y,10);
+  //fill(0,0,255);
+  //circle(pos3.x,pos3.y,10);
+
+  path1.push(pos1.copy());
+  path2.push(pos2.copy());
+  path3.push(pos3.copy());
+
+
+  for(let i=0;i<path1.length-1;i++){
+    strokeWeight(4);
+    stroke(255,0,0,100);
+    line(path1[i].x,path1[i].y,path1[i+1].x,path1[i+1].y);
+
+    stroke(0,255,0,100);
+    line(path2[i].x,path2[i].y,path2[i+1].x,path2[i+1].y);
+
+    stroke(0,0,255,100);
+    line(path3[i].x,path3[i].y,path3[i+1].x,path3[i+1].y);
+
+    if(i%5==0)
+    {
+      strokeWeight(1);
+      stroke(150)
+      beginShape();
+      vertex(path1[i].x,path1[i].y);
+      vertex(path2[i].x,path2[i].y);
+      vertex(path3[i].x,path3[i].y);
+      endShape(CLOSE);
+      //triangle(path1[i].x,path1[i].y,path2[i].x,path2[i].y,path3[i].x,path3[i].y);
+
+    }
+  }
+
+
+
+/*
+  for (let p of path1) {
+    stroke(255,0,0,100);
+    circle(p.x,p.y,1);
+  }
+
+  for (let p of path2) {
+    stroke(0,255,0,100);
+    circle(p.x,p.y,1);
+  }
+
+  for (let p of path3) {
+    stroke(0,0,255,100);
+    circle(p.x,p.y,1);
+  }
+
+*/
+  let vel1 = p5.Vector.sub(pos2,pos1).normalize().mult(speed);
+  let vel2 = p5.Vector.sub(pos3,pos2).normalize().mult(speed);
+  let vel3 = p5.Vector.sub(pos1,pos3).normalize().mult(speed);
+
+  pos1.add(vel1);
+  pos2.add(vel2);
+  pos3.add(vel3);
+
+
+
+  //let pos12 = pos1.sub(pos2).mag();
+  //let pos23 = pos2.sub(pos3).mag();
+  //let pos31 = pos3.sub(pos1).mag();
+
+//  if (pos12 < 1 || pos23 < 1 || pos31 < 1) {
+ //   noLoop();
+ // }
+
+
+
+
+//  updatePath();
+}
+
+function initPath(){
+
+  //draw();
+
+}
+
+
+
+function updatePath(){}
+
+
+
+</script>
+
+</body>
+</html>
